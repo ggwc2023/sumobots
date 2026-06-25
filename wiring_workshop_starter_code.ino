@@ -3,7 +3,7 @@
 ********************************************/
 
 // Motor A
-int RIGHT_SPEED = 9; // Speed pin, ranges from 0 to 255 (ENA)
+int RIGHT_SPEED = 9; // Speed pin, ranges from 0 to 255 (ENA). 9 shows pin.
 int RIGHT_F = 14; // Pin to move motor forwards (IN1)
 int RIGHT_R = 15; // Pin to move motor backwards (IN2)
 
@@ -28,7 +28,7 @@ void setup() { // Put your setup code here, to run once:
 }
 
 void loop() {
-  // Put your main code here, to run repeatedly:
+  // Put your main code here, to run repeatedly: make motors move.
   // Feel free to comment out testMotors and write your own test for specific functions
   testMotors();
 }
@@ -45,19 +45,20 @@ void motorSTOP() { // This will stop both motors, I have done this one for you
 }
 
 void driveForward() {
+  //use table from earlier here to make it move forward, highs/lows
 
 }
 
 void driveBackward() {
-
+ //use table from earlier here to make it move back, highs/lows
 }
 
 void turnRight() {
-
+ //use table from earlier here to make only left motor spin--
 }
 
 void turnLeft() {
-  
+  //use table from earlier here to make only left motor spin
 }
 
 void testMotors() {
