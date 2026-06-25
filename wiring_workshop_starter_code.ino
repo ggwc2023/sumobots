@@ -3,7 +3,7 @@
 ********************************************/
 
 // Motor A
-int RIGHT_SPEED = 9; // Speed pin, ranges from 0 to 255 (ENA). 9 shows pin.
+int RIGHT_SPEED = 9; // Speed pin, ranges from 0 to 255 (ENA)
 int RIGHT_F = 14; // Pin to move motor forwards (IN1)
 int RIGHT_R = 15; // Pin to move motor backwards (IN2)
 
@@ -28,7 +28,7 @@ void setup() { // Put your setup code here, to run once:
 }
 
 void loop() {
-  // Put your main code here, to run repeatedly: make motors move.
+  // Put your main code here, to run repeatedly:
   // Feel free to comment out testMotors and write your own test for specific functions
   testMotors();
 }
@@ -45,20 +45,43 @@ void motorSTOP() { // This will stop both motors, I have done this one for you
 }
 
 void driveForward() {
-  //use table from earlier here to make it move forward, highs/lows
+  analogWrite(RIGHT_SPEED, 200);
+  digitalWrite(RIGHT_F, HIGH);
+  digitalWrite(RIGHT_R, LOW);
 
+  analogWrite(LEFT_SPEED, 200);
+  digitalWrite(LEFT_F, HIGH);
+  digitalWrite(LEFT_R, LOW);
 }
 
 void driveBackward() {
- //use table from earlier here to make it move back, highs/lows
+  analogWrite(RIGHT_SPEED, 200);
+  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_R, HIGH);
+
+  analogWrite(LEFT_SPEED, 200);
+  digitalWrite(LEFT_F, LOW);
+  digitalWrite(LEFT_R, HIGH);
 }
 
 void turnRight() {
- //use table from earlier here to make only left motor spin--
+  analogWrite(RIGHT_SPEED, 0);
+  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_R, LOW);
+
+  analogWrite(LEFT_SPEED, 200);
+  digitalWrite(LEFT_F, HIGH);
+  digitalWrite(LEFT_R, LOW);
 }
 
 void turnLeft() {
-  //use table from earlier here to make only left motor spin
+  analogWrite(RIGHT_SPEED, 200);
+  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_R, LOW);
+
+  analogWrite(LEFT_SPEED, 0);
+  digitalWrite(LEFT_F, LOW);
+  digitalWrite(LEFT_R, LOW);
 }
 
 void testMotors() {
