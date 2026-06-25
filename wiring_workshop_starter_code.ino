@@ -65,7 +65,7 @@ void driveBackward() {
 }
 
 void turnRight() {
-  analogWrite(RIGHT_SPEED, 0);
+  analogWrite(RIGHT_SPEED, 200);
   digitalWrite(RIGHT_F, LOW);
   digitalWrite(RIGHT_R, LOW);
 
@@ -79,7 +79,7 @@ void turnLeft() {
   digitalWrite(RIGHT_F, LOW);
   digitalWrite(RIGHT_R, LOW);
 
-  analogWrite(LEFT_SPEED, 0);
+  analogWrite(LEFT_SPEED, 200);
   digitalWrite(LEFT_F, LOW);
   digitalWrite(LEFT_R, LOW);
 }
