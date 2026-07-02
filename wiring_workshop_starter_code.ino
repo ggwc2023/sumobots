@@ -3,8 +3,8 @@
 ********************************************/
 
 // Motor A
-int RIGHT_SPEED = 9; // Speed pin, ranges from 0 to 255 (ENA)
-int RIGHT_F = 14; // Pin to move motor forwards (IN1)
+int RIGHT_SPEED = 200; // Speed pin, ranges from 0 to 255 (ENA)
+int RIGHT_F = 200; // Pin to move motor forwards (IN1)
 int RIGHT_R = 15; // Pin to move motor backwards (IN2)
 
 // Motor B
@@ -67,7 +67,7 @@ void driveBackward() {
 void turnRight() {
   analogWrite(RIGHT_SPEED, 200);
   digitalWrite(RIGHT_F, LOW);
-  digitalWrite(RIGHT_R, LOW);
+  digitalWrite(RIGHT_R, HIGH);
 
   analogWrite(LEFT_SPEED, 200);
   digitalWrite(LEFT_F, HIGH);
@@ -76,12 +76,12 @@ void turnRight() {
 
 void turnLeft() {
   analogWrite(RIGHT_SPEED, 200);
-  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_F, HIGH);
   digitalWrite(RIGHT_R, LOW);
 
   analogWrite(LEFT_SPEED, 200);
   digitalWrite(LEFT_F, LOW);
-  digitalWrite(LEFT_R, LOW);
+  digitalWrite(LEFT_R, HIGH);
 }
 
 void testMotors() {
