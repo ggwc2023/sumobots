@@ -13,9 +13,9 @@ const int RIGHT_F = 8; // Pin to move motor forwards (IN1)
 const int RIGHT_R = 7; // Pin to move motor backwards (IN2)
 
 // Motor B (left)
-const int ENB = 10; // Speed pin, ranges from 0 to 255 (ENB)
-const int IN3 = 6; // Pin to move motor forwards (IN3)
-const int IN4 = 5; // Pin to move motor backwards (IN4)
+const int LEFT_SPEED = 10; // Speed pin, ranges from 0 to 255 (ENB)
+const int LEFT_F = 6; // Pin to move motor forwards (IN3)
+const int LEFT_R = 5; // Pin to move motor backwards (IN4)
 
 // Ultrasonic sensor
 const int TRIG_PIN = 11;
