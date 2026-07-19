@@ -52,7 +52,7 @@ void setup() {
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
 
-  stopMotors();
+  motorStop();
 
   //Wait 5 seconds
   delay(START_DELAY_MS);
@@ -68,15 +68,20 @@ void loop() {
     driveForward(ATTACK_SPEED);
   } else {
     // Otherwise spin in place to find other robot
-    spinSearch();
+    spinSearch(SEARCH_SPEED);
   }
 }
 
 // ---------- SEARCH ----------
 //Robot spins in place
-void spinSearch() {
-  motor(ENA, IN1, IN2, -SEARCH_SPEED);
-  motor(ENB, IN3, IN4, SEARCH_SPEED);
+void spinSearch(int speed) {
+  analogWrite(RIGHT_SPEED, speed);
+  digitalWrite(RIGHT_F, HIGH);
+  digitalWrite(RIGHT_R, LOW);
+
+  analogWrite(LEFT_SPEED, -speed);
+  digitalWrite(LEFT_F, HIGH);
+  digitalWrite(LEFT_R, LOW);
 }
 
 // ---------- MOVEMENT ----------
@@ -109,7 +114,7 @@ void spinSearch() {
 //   digitalWrite(IN4, LOW);
 // }
 
-void motorSTOP() {
+void motorStop() {
   digitalWrite(RIGHT_F, LOW);
   digitalWrite(RIGHT_R, LOW);
 
