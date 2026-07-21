@@ -22,7 +22,7 @@ const int TRIG_PIN = 11;
 const int ECHO_PIN = 12;
 
 // ---------- CONSTANT VALUES ----------
-const int SEARCH_SPEED   = 150;
+const int SEARCH_SPEED   = 10;
 const int ATTACK_SPEED   = 255; 
 const int TURN_SPEED     = 180;
 
@@ -33,6 +33,13 @@ const int LOST_DISTANCE_CM   = 80;
 
 //How long robot waits before moving
 const unsigned long START_DELAY_MS = 5000;
+
+// Time spent turning one way before reversing
+const unsigned long SWEEP_DURATION_MS = 1000; 
+
+// ---------- SWEEP STATE ----------
+bool sweepingRight = true;
+unsigned long sweepTimer = 0;
 
 // ---------- SETUP ----------
 void setup() {
@@ -61,14 +68,25 @@ void setup() {
 // ---------- MAIN LOOP ----------
 void loop() {
   long distance = getDistanceCM();
-
+  unsigned long now = millis();
   
   if (distance > 0 && distance < DETECT_DISTANCE_CM) {
     // If opponent detected charge at them
     driveForward(ATTACK_SPEED);
   } else {
     // Otherwise spin in place to find other robot
-    spinSearch(SEARCH_SPEED);
+    // spinSearch(SEARCH_SPEED);
+    if (now - sweepTimer >= SWEEP_DURATION_MS) {
+    sweepingRight = !sweepingRight;
+    sweepTimer = now;
+  }
+
+  if (sweepingRight) {
+    turnRight(SEARCH_SPEED);
+  } else {
+    turnLeft(SEARCH_SPEED);
+  }
+    delay(100); 
   }
 }
 
