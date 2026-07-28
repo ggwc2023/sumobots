@@ -23,7 +23,7 @@ const int ECHO_PIN = 12;
 
 // ---------- CONSTANT VALUES ----------
 const int SEARCH_SPEED   = 10;
-const int ATTACK_SPEED   = 50; 
+const int ATTACK_SPEED   = 100; 
 const int TURN_SPEED     = 180;
 
 //How close other robot is before it is 'detected'
