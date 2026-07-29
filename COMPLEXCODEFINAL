@@ -1,0 +1,224 @@
+// ---------- PIN DEFINITIONS  ----------
+// Motor A (left)
+const int LEFT_SPEED = 9; // Speed pin, ranges from 0 to 255 (ENA)
+const int LEFT_F = A0; // Pin to move motor forwards (IN1)
+const int LEFT_R = A1; // Pin to move motor backwards (IN2)
+
+// Motor B (right)
+const int RIGHT_SPEED = 10; // Speed pin, ranges from 0 to 255 (ENB)
+const int RIGHT_F = A2; // Pin to move motor forwards (IN3)
+const int RIGHT_R = A3; // Pin to move motor backwards (IN4)
+
+// Ultrasonic sensor
+const int TRIG_PIN = 12;
+const int ECHO_PIN = 11;
+
+// ---------- CONSTANT VALUES ----------
+const int SEARCH_SPEED   = 150;
+const int ATTACK_SPEED   = 255; 
+// const int TURN_SPEED     = 200;
+
+//How close other robot is before it is 'detected'
+const int DETECT_DISTANCE_CM = 100; 
+//How far other robot is before it is 'lost'
+const int LOST_DISTANCE_CM   = 100;
+
+float duration, distance;
+
+//How long robot waits before moving
+const unsigned long START_DELAY_MS = 5000;
+
+// Time spent turning one way before reversing back to center
+const unsigned long SWEEP_DURATION_MS = 2500; 
+
+// ---------- SWEEP STATE ----------
+unsigned long lastTurnTime = 0;
+int searchState = 0;
+
+// Direction of the most recent sweep turn: -1 = left, 1 = right.
+// Used to decide which way to nudge before charging.
+int lastSweepDirection = -1;
+
+// True while actively charging at a detected target. Re-evaluated every
+// loop from a fresh ultrasonic reading, rather than latching permanently.
+bool attacking = false;
+
+// Ultrasonic readings can glitch for a single cycle (motor electrical
+// noise, a bad echo angle, a timeout) even when the target hasn't
+// actually moved. Rather than dropping out of attack mode on the very
+// first bad reading, require several consecutive "lost" readings in a
+// row before giving up and going back to search.
+const int LOST_CONFIRM_COUNT = 5;
+int lostReadingStreak = 0;
+
+// ---------- SETUP ----------
+void setup() {
+  Serial.begin(9600);
+
+  //Set all motor control pins to outputs
+  pinMode(RIGHT_SPEED, OUTPUT);
+  pinMode(RIGHT_F, OUTPUT);
+  pinMode(RIGHT_R, OUTPUT);
+  pinMode(LEFT_SPEED, OUTPUT);
+  pinMode(LEFT_F, OUTPUT);
+  pinMode(LEFT_R, OUTPUT);
+  
+  //Set full power to motors
+  analogWrite(RIGHT_SPEED, 255);
+  analogWrite(LEFT_SPEED, 255);
+
+  //Setup ultrasonic sensor
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  motorStop();
+
+  //Wait 5 seconds
+  delay(START_DELAY_MS);
+}
+
+// ---------- MAIN LOOP ----------
+void loop() {
+  long distance = getDistanceCM();
+  Serial.print("Distance: ");
+  Serial.println(distance);
+
+  bool targetInRange = (distance > 0 && distance < DETECT_DISTANCE_CM);
+  bool targetStillNear = (distance > 0 && distance < LOST_DISTANCE_CM);
+
+  if (attacking) {
+    // Keep charging only while the target is still reasonably close.
+    // Using LOST_DISTANCE_CM (rather than DETECT_DISTANCE_CM) as the
+    // cutoff avoids rapid flickering between states right at the
+    // detection boundary.
+    if (targetStillNear) {
+      lostReadingStreak = 0;
+      driveForward(ATTACK_SPEED);
+      return;
+    } else {
+      lostReadingStreak++;
+      if (lostReadingStreak < LOST_CONFIRM_COUNT) {
+        // Probably just a noisy/dropped reading rather than the target
+        // actually moving away - keep charging and see if it clears up
+        // on the next loop instead of bailing immediately.
+        driveForward(ATTACK_SPEED);
+        return;
+      }
+      // Several bad readings in a row - target is genuinely gone.
+      attacking = false;
+      lostReadingStreak = 0;
+    }
+  }
+
+  if (targetInRange) {
+    attacking = true;
+    lostReadingStreak = 0;
+    driveForward(ATTACK_SPEED);
+  } else {
+    if (millis() - lastTurnTime >= SWEEP_DURATION_MS) {
+        lastTurnTime = millis();
+        searchState++;
+
+        if (searchState > 3) {
+          searchState = 0;   // Repeat: sweep left -> recenter -> sweep right -> recenter
+        }
+    }
+
+    switch (searchState) {
+        case 0:
+        // Sweep left
+        Serial.println("Sweep Left");
+        turnLeft(SEARCH_SPEED);
+        lastSweepDirection = -1;
+        break;
+
+        case 1:
+        // Recenter: undo the left sweep by turning right the same duration
+        Serial.println("Recenter");
+        turnRight(SEARCH_SPEED);
+        lastSweepDirection = 1;
+        break;
+
+        case 2:
+        // Sweep right
+        Serial.println("Sweep Right");
+        turnRight(SEARCH_SPEED);
+        lastSweepDirection = 1;
+        break;
+
+        case 3:
+        // Recenter: undo the right sweep by turning left the same duration
+        Serial.println("Recenter");
+        turnLeft(SEARCH_SPEED);
+        lastSweepDirection = -1;
+        break;
+    }
+  }
+}
+
+// ---------- MOVEMENT ----------
+
+void motorStop() {
+  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_R, LOW);
+
+  digitalWrite(LEFT_F, LOW);
+  digitalWrite(LEFT_R, LOW);
+}
+
+void driveForward(int speed) {
+  analogWrite(RIGHT_SPEED, speed);
+  digitalWrite(RIGHT_F, HIGH);
+  digitalWrite(RIGHT_R, LOW);
+
+  analogWrite(LEFT_SPEED, speed);
+  digitalWrite(LEFT_F, HIGH);
+  digitalWrite(LEFT_R, LOW);
+}
+
+void driveBackward(int speed) {
+  analogWrite(RIGHT_SPEED, speed);
+  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_R, HIGH);
+
+  analogWrite(LEFT_SPEED, speed);
+  digitalWrite(LEFT_F, LOW);
+  digitalWrite(LEFT_R, HIGH);
+}
+
+// Spin right in place: left wheel forward, right wheel backward
+void turnRight(int speed) {
+  analogWrite(RIGHT_SPEED, speed);
+  digitalWrite(RIGHT_F, LOW);
+  digitalWrite(RIGHT_R, HIGH);
+
+  analogWrite(LEFT_SPEED, speed);
+  digitalWrite(LEFT_F, HIGH);
+  digitalWrite(LEFT_R, LOW);
+}
+
+// Spin left in place: right wheel forward, left wheel backward
+void turnLeft(int speed) {
+  analogWrite(RIGHT_SPEED, speed);
+  digitalWrite(RIGHT_F, HIGH);
+  digitalWrite(RIGHT_R, LOW);
+
+  analogWrite(LEFT_SPEED, speed);
+  digitalWrite(LEFT_F, LOW);
+  digitalWrite(LEFT_R, HIGH);
+}
+
+// ---------- ULTRASONIC SENSOR ----------
+long getDistanceCM() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000); // 30ms timeout (~5m range)
+  if (duration == 0) return -1; // no echo received
+
+  long distance = duration * 0.0343 / 2; // speed of sound conversion
+  return distance;
+}
